@@ -25,17 +25,14 @@ export default async function handler(req, res) {
 
     const [_, name, parentName, phone, language] = studentRow;
 
-    if (!phone.startsWith('6') && !phone.startsWith('7') && !phone.startsWith('8') && !phone.startsWith('9')) {
+    if (!/^[6-9]\d{9}$/.test(phone)) {
       return res.status(400).json({ error: 'Invalid phone number format in sheet' });
     }
 
-    // Trigger Vapi.ai call
+    // ✅ Build Vapi.ai payload (without nested `customer.phoneNumber`)
     const vapiPayload = {
       assistantId: process.env.VAPI_ASSISTANT_ID,
-      customer: {
-        name: parentName,
-        phoneNumber: `+91${phone}`
-      },
+      phoneNumber: `+91${phone}`,
       metadata: {
         studentName: name,
         reason,
