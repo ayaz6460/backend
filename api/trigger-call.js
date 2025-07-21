@@ -30,7 +30,7 @@ export default async function handler(req, res) {
 
     const vapiPayload = {
       assistantId: process.env.VAPI_ASSISTANT_ID,
-      phoneNumberId: "4eb29124-3de2-4fd0-b280-324578fb4618"
+      phoneNumberId: "4eb29124-3de2-4fd0-b280-324578fb4618",
       customer: {
         name: parentName,
         phoneNumber: {
