@@ -12,7 +12,6 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Fetch student row
     const sheetURL = `https://sheets.googleapis.com/v4/spreadsheets/${process.env.SHEET_ID}/values/STUDENT_DB!A2:E?key=${process.env.GOOGLE_API_KEY}`;
     const sheetResponse = await axios.get(sheetURL);
 
@@ -25,26 +24,26 @@ export default async function handler(req, res) {
 
     const [_, name, parentName, phone, language] = studentRow;
 
-    if (!/^[6-9]\d{9}$/.test(phone)) {
+    if (!phone.startsWith('6') && !phone.startsWith('7') && !phone.startsWith('8') && !phone.startsWith('9')) {
       return res.status(400).json({ error: 'Invalid phone number format in sheet' });
     }
 
-    // ✅ Build Vapi.ai payload (without nested `customer.phoneNumber`)
     const vapiPayload = {
-  assistantId: process.env.VAPI_ASSISTANT_ID,
-  customer: {
-    name: parentName,
-    phoneNumber: {
-      number: `+91${phone}`
-    }
-  },
-  metadata: {
-    studentName: name,
-    reason,
-    pin,
-    language: language || 'en'
-  }
-};
+      assistantId: process.env.VAPI_ASSISTANT_ID,
+      customer: {
+        name: parentName,
+        phoneNumber: {
+          number: `+91${phone}`,
+          countryCode: "IN"
+        }
+      },
+      metadata: {
+        studentName: name,
+        reason,
+        pin,
+        language: language || 'en'
+      }
+    };
 
     const vapiRes = await axios.post(
       'https://api.vapi.ai/call',
