@@ -1,6 +1,6 @@
-import axios from 'axios';
+const axios = require('axios');
 
-export default async function handler(req, res) {
+module.exports = async (req, res) => {
   if (req.method !== 'POST') {
     return res.status(405).send({ message: 'Only POST requests allowed' });
   }
@@ -8,7 +8,6 @@ export default async function handler(req, res) {
   const { pin, reason } = req.body;
 
   try {
-    // Fetch student data from Google Sheets
     const SHEET_ID = process.env.SHEET_ID;
     const API_KEY = process.env.GOOGLE_API_KEY;
     const sheetRes = await axios.get(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/STUDENT_DB!A2:E?key=${API_KEY}`);
@@ -27,7 +26,6 @@ export default async function handler(req, res) {
       language: student[4]
     };
 
-    // Call Vapi API
     const vapiRes = await axios.post(
       'https://api.vapi.ai/call',
       {
@@ -52,6 +50,7 @@ export default async function handler(req, res) {
     );
 
     res.status(200).json({ success: true, data: vapiRes.data });
+
   } catch (err) {
     console.error(err.response?.data || err.message);
     res.status(500).json({ error: 'Call failed', details: err.message });
