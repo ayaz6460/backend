@@ -1,58 +1,18 @@
-const axios = require('axios');
+import axios from 'axios';
 
-module.exports = async (req, res) => {
-  if (req.method !== 'POST') {
-    return res.status(405).send({ message: 'Only POST requests allowed' });
-  }
+const payload = {
+  assistantId: '7b18ca6f-1aab-466c-a329-c13fc555b1de', // Replace with your real assistant ID
+  phoneNumber: '+916304334300' // Must be E.164 format
+};
 
-  const { pin, reason } = req.body;
-
-  try {
-    const SHEET_ID = process.env.SHEET_ID;
-    const API_KEY = process.env.GOOGLE_API_KEY;
-    const sheetRes = await axios.get(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/STUDENT_DB!A2:E?key=${API_KEY}`);
-    
-    const rows = sheetRes.data.values;
-    const student = rows.find(row => row[0] === pin);
-
-    if (!student) {
-      return res.status(404).json({ error: 'Student not found' });
+try {
+  const response = await axios.post('https://api.vapi.ai/call', payload, {
+    headers: {
+      'Authorization': `Bearer ${process.env.VAPI_API_KEY}`,
+      'Content-Type': 'application/json'
     }
-
-    const studentData = {
-      name: student[1],
-      parentName: student[2],
-      phone: student[3],
-      language: student[4]
-    };
-
-    const vapiRes = await axios.post(
-      'https://api.vapi.ai/call',
-      {
-        assistantId: process.env.VAPI_ASSISTANT_ID,
-        customer: {
-          name: studentData.parentName,
-          phoneNumber: {
-            phoneNumber: `+91${studentData.phone}`
-          }
-        },
-        metadata: {
-          studentName: studentData.name,
-          reason: reason
-        }
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.VAPI_TOKEN}`,
-          'Content-Type': 'application/json'
-        }
-      }
-    );
-
-    res.status(200).json({ success: true, data: vapiRes.data });
-
-  } catch (err) {
-    console.error(err.response?.data || err.message);
-    res.status(500).json({ error: 'Call failed', details: err.message });
-  }
+  });
+  console.log("✅ Call Triggered:", response.data);
+} catch (error) {
+  console.error("❌ Call failed:", error.response?.data || error.message);
 }
