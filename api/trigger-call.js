@@ -31,15 +31,20 @@ export default async function handler(req, res) {
 
     // ✅ Build Vapi.ai payload (without nested `customer.phoneNumber`)
     const vapiPayload = {
-      assistantId: process.env.VAPI_ASSISTANT_ID,
-      phoneNumber: `+91${phone}`,
-      metadata: {
-        studentName: name,
-        reason,
-        pin,
-        language: language || 'en'
-      }
-    };
+  assistantId: process.env.VAPI_ASSISTANT_ID,
+  customer: {
+    name: parentName,
+    phoneNumber: {
+      number: `+91${phone}`
+    }
+  },
+  metadata: {
+    studentName: name,
+    reason,
+    pin,
+    language: language || 'en'
+  }
+};
 
     const vapiRes = await axios.post(
       'https://api.vapi.ai/call',
