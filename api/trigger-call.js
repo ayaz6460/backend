@@ -34,7 +34,7 @@ export default async function handler(req, res) {
       customer: {
         name: parentName,
         phoneNumber: {
-          number: `+91${phone}`,
+          number: `+91${phone}`
         }
       },
       metadata: {
@@ -60,10 +60,10 @@ export default async function handler(req, res) {
 
   } catch (error) {
     console.error('❌ Error:', error.response?.data || error.message);
-
     return res.status(500).json({
       error: 'Internal Server Error',
       details: error.response?.data || error.message
     });
   }
 }
+
